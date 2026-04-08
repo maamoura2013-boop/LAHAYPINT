@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAHAY PRINT 2026 | Next-Gen Studio</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Outfit:wght@300;600;900&display=swap');
+        
+        body { font-family: 'Outfit', 'Cairo', sans-serif; scroll-behavior: smooth; background-color: #000; color: white; }
+        
+        /* 1. LIVE BACKGROUND (VIDEO + OVERLAY) */
+        .live-bg-wrapper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; overflow: hidden;
+        }
+        .live-bg-video { min-width: 100%; min-height: 100%; object-fit: cover; opacity: 0.45; }
+        .live-overlay {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(22, 163, 74, 0.15) 50%, rgba(0,0,0,0.9) 100%);
+            z-index: -1;
+        }
+        #live-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+        .glass-card:hover { border-color: #2ecc71; transform: translateY(-5px); background: rgba(255, 255, 255, 0.06); }
+
+        .lang-btn.active { background: #dc2626; color: white; border-color: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); }
+        .pulse-chat { animation: pulse-green 2s infinite; }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            100% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="live-bg-wrapper">
+        <video autoplay muted loop playsinline class="live-bg-video">
+            <source src="Printer_Printing_Video_Generation.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="live-overlay"></div>
+    <canvas id="live-particles"></canvas>
+
+    <div class="fixed top-0 w-full z-[80] bg-black/70 backdrop-blur-md py-3 border-b border-white/5">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex gap-3">
+                <button onclick="changeLang('en')" id="btn-en" class="lang-btn px-4 py-1 text-[10px] font-bold border border-white/20 rounded-full active uppercase">EN</button>
+                <button onclick="changeLang('fr')" id="btn-fr" class="lang-btn px-4 py-1 text-[10px] font-bold border border-white/20 rounded-full uppercase">FR</button>
+                <button onclick="changeLang('ar')" id="btn-ar" class="lang-btn px-4 py-1 text-[10px] font-bold border border-white/20 rounded-full uppercase">AR</button>
+            </div>
+            <div class="text-[9px] font-black tracking-[0.3em] text-red-500 uppercase">Lahay Print Premium Studio • Kenitra</div>
+        </div>
+    </div>
+
+    <nav class="fixed top-[55px] w-full z-[70] px-6">
+        <div class="container mx-auto bg-black/30 backdrop-blur-2xl border border-white/10 rounded-2xl py-4 px-8 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <span class="text-4xl font-black text-red-600 tracking-tighter italic">LH</span>
+                <span class="text-xs font-bold tracking-[0.2em] uppercase hidden sm:block" data-i18n="nav-title">LAHAY PRINT</span>
+            </div>
+            <button onclick="toggleCart()" class="relative p-2 bg-green-600 rounded-xl hover:scale-110 transition shadow-lg">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="h-screen flex items-center justify-center text-center px-6">
+        <div data-aos="zoom-out" data-aos-duration="1500" class="relative z-10">
+            <h1 class="text-6xl md:text-[120px] font-black italic uppercase leading-none mb-8 tracking-tighter">
+                <span data-i18n="hero-welcome">Welcome to</span><br>
+                <span class="text-red-600 not-italic">LAHAY PRINT</span>
+            </h1>
+            <p class="text-gray-300 text-lg md:text-2xl max-w-2xl mx-auto font-light mb-12" data-i18n="hero-desc">Modern Printing. Fixed Rates. Delivery in Kenitra.</p>
+            <button onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})" class="bg-red-600 hover:bg-green-600 px-16 py-6 rounded-2xl font-black uppercase tracking-widest shadow-2xl transition-all" data-i18n="hero-btn">Start Ordering</button>
+        </div>
+    </header>
+
+    <section id="services" class="py-32 container mx-auto px-6">
+        <div class="text-center mb-24" data-aos="fade-up">
+            <h2 class="text-6xl md:text-8xl font-black uppercase italic tracking-tighter">
+                <span data-i18n="ser-our">Our</span> <span class="text-green-500" data-i18n="ser-title">Services</span>
+            </h2>
+            <div class="h-1 w-40 bg-red-600 mx-auto mt-6 rounded-full"></div>
+        </div>
+        <div id="services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            </div>
+    </section>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-black/95 backdrop-blur-3xl border-l border-white/10 z-[200] translate-x-full transition-transform duration-700 custom-scroll">
+        <div class="p-12 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-4xl font-black uppercase italic" data-i18n="cart-title">Your Order</h3>
+                <button onclick="toggleCart()" class="text-7xl hover:text-red-600">&times;</button>
+            </div>
+            
+            <input type="text" id="client-name" placeholder="Client Name / Nom du Client" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white outline-none mb-10 focus:border-red-600">
+
+            <div id="cart-items" class="flex-grow overflow-y-auto space-y-6 pr-4"></div>
+            
+            <div class="pt-8 border-t border-white/10">
+                <div class="flex justify-between items-center mb-4 text-gray-400 font-bold uppercase text-sm">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">0.00 DH</span>
+                </div>
+                <div class="flex justify-between items-center mb-8 text-red-500 font-bold uppercase text-sm">
+                    <span>Delivery / Livraison</span>
+                    <span>20.00 DH</span>
+                </div>
+                <div id="cart-total" class="text-6xl font-black text-green-500 mb-10 text-center">0.00 DH</div>
+                <button onclick="checkout()" class="w-full bg-red-600 hover:bg-green-600 py-8 rounded-3xl font-black uppercase tracking-widest transition shadow-2xl" data-i18n="cart-btn">Confirm Order</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+
+        // 1. PARTICLES SCRIPT
+        const canvas = document.getElementById('live-particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class P {
+            constructor() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.s = Math.random()*2; this.vx = Math.random()*0.5-0.25; this.vy = Math.random()*0.5-0.25; this.c = Math.random() > 0.5 ? '#dc2626' : '#16a34a'; }
+            u() { this.x += this.vx; this.y += this.vy; if(this.x>canvas.width)this.x=0; if(this.y>canvas.height)this.y=0; }
+            d() { ctx.fillStyle=this.c; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); }
+        }
+        for(let i=0; i<70; i++) particles.push(new P());
+        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.u(); p.d();}); requestAnimationFrame(anim); }
+        anim();
+
+        // 2. PRICING & SERVICES DATA
+        const translations = {
+            en: { "nav-title": "LAHAY PRINT", "hero-welcome": "Welcome to", "hero-desc": "Premium studio with fixed delivery rates.", "hero-btn": "Explore Services", "ser-our": "Our", "ser-title": "Services", "cart-title": "Your Order", "cart-btn": "Process via WhatsApp", "unit": "units" },
+            fr: { "nav-title": "LAHAY PRINT", "hero-welcome": "Bienvenue chez", "hero-desc": "Studio premium avec livraison fixe.", "hero-btn": "Voir les Services", "ser-our": "Nos", "ser-title": "Services", "cart-title": "Votre Commande", "cart-btn": "Confirmer WhatsApp", "unit": "unités" },
+            ar: { "nav-title": "لاهاي برينت", "hero-welcome": "مرحباً بكم في", "hero-desc": "استوديو متميز مع أسعار توصيل ثابتة.", "hero-btn": "اكتشف الخدمات", "ser-our": "خدماتنا", "ser-title": "المتميزة", "cart-title": "طلباتك", "cart-btn": "تأكيد عبر واتساب", "unit": "وحدة" }
+        };
+
+        const services = [
+            { id: 1, type: "flyers", names: {en: "Flyers & Posters", fr: "Flyers & Affiches", ar: "فلاير و ملصقات"}, img: 'https://uploads.onecompiler.io/44jjmhkbp/44jrbe6j4/uBqvtqsWGqQgqJpBlKuj1.webp' },
+            { id: 2, type: "carton", names: {en: "Carton Packaging", fr: "Emballage Carton", ar: "تغليف كرتون"}, img: 'https://uploads.onecompiler.io/44jjmhkbp/44jrbe6j4/61OorFhm6SL._AC_UF1000,1000_QL80_.jpg' },
+            { id: 3, type: "spiral", names: {en: "Spiral Binding", fr: "Reliure Spirale", ar: "تغليف لولبي"}, img: 'https://uploads.onecompiler.io/44jjmhkbp/44jrbe6j4/4622_694x412_cpd_document-printing-manuals-data.webp' },
+            { id: 4, type: "cards", names: {en: "Business Cards", fr: "Cartes de Visite", ar: "كارت فيزيت"}, img: 'https://uploads.onecompiler.io/44jjmhkbp/44jrbe6j4/Gemini_Generated_Image_h0rz3eh0rz3eh0rz.png' },
+            { id: 5, type: "thesis", names: {en: "Thesis & PFE", fr: "Thèses & PFE", ar: "أطروحات (PFE)"}, img: 'https://uploads.onecompiler.io/44jjmhkbp/44jrbe6j4/$_32.jpg' },
+            { id: 6, type: "normal", names: {en: "IMPRESSION NORMAL", fr: "IMPRESSION NORMAL", ar: "طباعة عادية"}, img: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=800&q=80' }
+        ];
+
+        let currentLang = 'en';
+        function changeLang(lang) {
+            currentLang = lang;
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.querySelectorAll('[data-i18n]').forEach(el => el.innerText = translations[lang][el.getAttribute('data-i18n')]);
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${lang}`).classList.add('active');
+            renderServices();
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('services-grid');
+            grid.innerHTML = services.map(s => {
+                let controls = "";
+                if (s.type === "flyers") controls = `
+                    <select id="size-${s.id}" class="w-full bg-black border border-white/10 p-3 rounded-xl mb-2 text-xs font-bold uppercase">
+                        <option value="2.5">A4 (2.5 DH)</option>
+                        <option value="1">A5 (1.0 DH)</option>
+                    </select>
+                    <select id="side-${s.id}" class="w-full bg-black border border-white/10 p-3 rounded-xl mb-2 text-xs font-bold uppercase">
+                        <option value="1">Recto</option>
+                        <option value="2">Recto-Verso (x2)</option>
+                    </select>`;
+                else if (s.type === "spiral") controls = `
+                    <select id="spiral-type-${s.id}" class="w-full bg-black border border-white/10 p-3 rounded-xl mb-2 text-xs font-bold uppercase">
+                        <option value="5">Plastique (5 DH)</option>
+                        <option value="10">Metalique (10 DH)</option>
+                    </select>`;
+                else if (s.type === "cards") controls = `
+                    <select id="card-type-${s.id}" class="w-full bg-black border border-white/10 p-3 rounded-xl mb-2 text-xs font-bold uppercase">
+                        <option value="30">Recto (30 DH / 100)</option>
+                        <option value="50">Recto-Verso (50 DH / 100)</option>
+                    </select>
+                    <p class="text-[10px] text-gray-500 mb-2">Min. 100 cards</p>`;
+                else if (s.type === "thesis") controls = `
+                    <select id="thesis-color-${s.id}" class="w-full bg-black border border-white/10 p-3 rounded-xl mb-2 text-xs font-bold uppercase">
+                        <option value="0.25">N/B (0.25 DH/pg)</option>
+                        <option value="0.50">Color (0.50 DH/pg)</option>
+                    </select>
+                    <p class="text-[10px] text-gray-500 mb-2">+ 15 DH Cover Included</p>`;
+
+                return `
+                <div class="glass-card rounded-[3rem] overflow-hidden p-6" data-aos="fade-up">
+                    <img src="${s.img}" class="w-full h-48 object-cover rounded-2xl mb-6">
+                    <h3 class="font-black text-xl uppercase italic mb-6 tracking-tighter text-green-500">${s.names[currentLang]}</h3>
+                    <div class="mb-4">${controls}</div>
+                    <div class="flex gap-2 items-center">
+                        <input type="number" id="qty-${s.id}" value="${s.type === 'cards' ? 100 : 1}" min="${s.type === 'cards' ? 100 : 1}" class="w-20 bg-black border border-white/10 p-3 rounded-xl text-center font-bold">
+                        <button onclick="addToCart(${s.id})" class="flex-grow bg-white text-black py-3 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-green-600 hover:text-white transition">ADD</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        let cart = [];
+        function addToCart(id) {
+            const s = services.find(x => x.id === id);
+            const qty = parseInt(document.getElementById(`qty-${id}`).value);
+            let unitPrice = 0;
+            let finalName = s.names[currentLang];
+
+            if (s.type === "flyers") {
+                const base = parseFloat(document.getElementById(`size-${id}`).value);
+                const multiplier = parseInt(document.getElementById(`side-${id}`).value);
+                unitPrice = base * multiplier;
+                finalName += ` (${base === 2.5 ? 'A4' : 'A5'} ${multiplier === 1 ? 'Recto' : 'Recto-Verso'})`;
+            } else if (s.type === "carton") {
+                unitPrice = qty > 50 ? 2 : 3;
+            } else if (s.type === "spiral") {
+                unitPrice = parseFloat(document.getElementById(`spiral-type-${id}`).value);
+            } else if (s.type === "cards") {
+                unitPrice = parseFloat(document.getElementById(`card-type-${id}`).value) / 100;
+            } else if (s.type === "thesis") {
+                const rate = parseFloat(document.getElementById(`thesis-color-${id}`).value);
+                unitPrice = rate + (15 / qty); // Distribute cover fix
+            } else if (s.type === "normal") {
+                unitPrice = 0.25;
+            }
+
+            cart.push({ id: Date.now(), name: finalName, unitPrice, qty, total: unitPrice * qty });
+            updateCart(); toggleCart(true);
+        }
+
+        function updateCart() {
+            const list = document.getElementById('cart-items');
+            list.innerHTML = cart.map((item, index) => `
+                <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                    <div>
+                        <p class="font-black uppercase text-sm text-white">${item.name}</p>
+                        <p class="text-[10px] font-black text-gray-500 uppercase">${item.qty} units × ${item.unitPrice.toFixed(2)} DH</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-green-500">${item.total.toFixed(2)} DH</p>
+                        <button onclick="removeItem(${index})" class="text-[9px] font-black text-red-500 uppercase hover:underline">REMOVE</button>
+                    </div>
+                </div>`);
+            
+            const subtotal = cart.reduce((sum, i) => sum + i.total, 0);
+            const total = subtotal > 0 ? subtotal + 20 : 0;
+            document.getElementById('cart-subtotal').innerText = `${subtotal.toFixed(2)} DH`;
+            document.getElementById('cart-total').innerText = `${total.toFixed(2)} DH`;
+            document.getElementById('cart-count').innerText = cart.length;
+        }
+
+        function removeItem(i) { cart.splice(i, 1); updateCart(); }
+        function toggleCart(open = false) { const el = document.getElementById('cart-sidebar'); if (open) el.classList.remove('translate-x-full'); else el.classList.toggle('translate-x-full'); }
+
+        async function checkout() {
+            const clientName = document.getElementById('client-name').value;
+            if (!clientName) return alert("Enter client name!");
+            if (cart.length === 0) return alert("Empty basket!");
+
+            const subtotal = cart.reduce((sum, i) => sum + i.total, 0);
+            const total = subtotal + 20;
+            const factureNo = "INV-" + Math.floor(1000 + Math.random() * 9000);
+            const date = new Date().toLocaleDateString();
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // PDF DESIGN
+            doc.setFillColor(220, 38, 38); doc.rect(0, 0, 210, 40, 'F');
+            doc.setFontSize(30); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.text("LAHAY PRINT", 20, 25);
+            doc.setFontSize(10); doc.text("STUDIO D'IMPRESSION PROFESSIONNEL - KENITRA", 20, 32);
+
+            doc.setTextColor(0, 0, 0); doc.setFontSize(12);
+            doc.text(`CLIENT: ${clientName.toUpperCase()}`, 20, 55);
+            doc.text(`DATE: ${date} | ID: ${factureNo}`, 130, 55);
+
+            const tableRows = cart.map(i => [factureNo, i.name, `${i.qty}`, `${i.unitPrice.toFixed(2)} DH`, `${i.total.toFixed(2)} DH`]);
+            tableRows.push(['', 'LIVRASON FIXE', '1', '20.00 DH', '20.00 DH']);
+
+            doc.autoTable({
+                startY: 65,
+                head: [['NO.', 'SERVICE', 'QTY', 'UNIT', 'TOTAL']],
+                body: tableRows,
+                headStyles: { fillColor: [22, 163, 74] },
+                theme: 'grid'
+            });
+            
+            const finalY = doc.lastAutoTable.finalY + 15;
+            doc.setFontSize(16); doc.text(`GRAND TOTAL: ${total.toFixed(2)} DH`, 120, finalY);
+            doc.setFontSize(14); doc.setTextColor(220, 38, 38); doc.text("Signature & Cachet: LAHAY PRINT", 20, finalY + 20);
+
+            doc.save(`Facture_${clientName}.pdf`);
+            window.open(`https://wa.me/212607029242?text=Hello, it's ${clientName}. Order ${factureNo} total ${total.toFixed(2)} DH. Receipt generated.`, '_blank');
+        }
+
+        renderServices();
+    </script>
+</body>
+</html>
